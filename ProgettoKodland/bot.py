@@ -1,10 +1,11 @@
 import discord
 from discord import app_commands
 import httpx
+import os
 
-BOT_TOKEN   = "MTUwMjYwMDQzMTk4ODM3OTY3OQ.GE3C1m.mgZbVK1GxAvuwKLQN4mSgIgsRIEqZSITUYeXr4"
-BOT_SECRET  = "kodland"
-BACKEND_URL = "http://127.0.0.1:8000"
+BOT_TOKEN   = os.getenv("BOT_TOKEN")
+BOT_SECRET  = os.getenv("BOT_SECRET")
+BACKEND_URL = os.getenv("BACKEND_URL")
 
 intents = discord.Intents.default()
 client  = discord.Client(intents=intents)
