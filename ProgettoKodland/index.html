@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Discord Auth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0a0a0f;
+    --surface:  #13131a;
+    --border:   #1e1e2e;
+    --text:     #e8e8f0;
+    --muted:    #6b6b8a;
+    --gold:     #f5c400;
+    --gold-dim: #a88a00;
+    --purple:   #7c6af5;
+    --free:     #3b82f6;
+    --danger:   #ef4444;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    overflow-x: hidden;
+  }
+
+  /* ── Background noise ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 460px;
+  }
+
+  /* ── Logo ── */
+  .logo {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .logo-mark {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    background: var(--purple);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 12px;
+    box-shadow: 0 0 40px rgba(124,106,245,0.35);
+  }
+  .logo h1 {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2rem;
+  }
+
+  /* ── LOGIN SECTION ── */
+  #section-login { display: block; }
+
+  .login-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .login-sub {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 2rem;
+    line-height: 1.5;
+  }
+
+  .btn-discord {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 14px;
+    background: #5865F2;
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-discord:hover  { background: #4752c4; }
+  .btn-discord:active { transform: scale(0.98); }
+
+  .btn-discord svg { flex-shrink: 0; }
+
+  /* ── LOADING ── */
+  #section-loading {
+    display: none;
+    text-align: center;
+    padding: 2rem 0;
+  }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--purple);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #section-loading p { font-size: 14px; color: var(--muted); }
+
+  /* ── FREE / PREMIUM SECTIONS ── */
+  #section-free, #section-premium { display: none; }
+
+  .user-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--border);
+  }
+  .avatar-placeholder {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .user-info { flex: 1; }
+  .user-name { font-size: 16px; font-weight: 700; }
+  .user-id   { font-size: 12px; color: var(--muted); font-family: 'Space Mono', monospace; }
+
+  .badge {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .badge-free    { background: rgba(59,130,246,0.15); color: var(--free); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-premium { background: rgba(245,196,0,0.15);  color: var(--gold); border: 1px solid rgba(245,196,0,0.3); }
+
+  .features { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+  }
+  .feature-icon { font-size: 18px; flex-shrink: 0; }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  /* Premium glow accent */
+  #section-premium .card {
+    border-color: rgba(245,196,0,0.25);
+    box-shadow: 0 0 60px rgba(245,196,0,0.06);
+  }
+
+  .btn-logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 14px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .btn-logout:hover { color: var(--danger); border-color: rgba(239,68,68,0.4); }
+
+  /* ── Error ── */
+  #section-error {
+    display: none;
+    text-align: center;
+    padding: 1.5rem 0;
+  }
+  #section-error p { font-size: 14px; color: var(--danger); margin-bottom: 1rem; }
+  .btn-retry {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .btn-retry:hover { border-color: var(--purple); color: var(--purple); }
+
+  /* ── Footer ── */
+  .footer { text-align: center; margin-top: 1.5rem; font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="logo">
+    <div class="logo-mark">◈</div>
+    <h1>Italy RolePlay — Portale</h1>
+  </div>
+
+  <div class="card">
+
+    <!-- LOGIN -->
+    <div id="section-login">
+      <p class="login-title">Accedi al portale</p>
+      <p class="login-sub">Effettua il login con il tuo account Discord per accedere ai contenuti riservati.</p>
+      <a href="/login" class="btn-discord">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+        </svg>
+        Continua con Discord
+      </a>
+    </div>
+
+    <!-- LOADING -->
+    <div id="section-loading">
+      <div class="spinner"></div>
+      <p>Verifica in corso…</p>
+    </div>
+
+    <!-- FREE -->
+    <div id="section-free">
+      <div class="user-header">
+        <div class="avatar-placeholder" id="avatar-free">?</div>
+        <div class="user-info">
+          <p class="user-name" id="name-free">—</p>
+          <p class="user-id"  id="id-free">—</p>
+        </div>
+        <span class="badge badge-free">Free</span>
+      </div>
+      <p class="section-label">Funzionalità disponibili</p>
+      <div class="features">
+        <div class="feature-item"><span class="feature-icon">✅</span> Accesso al server di gioco</div>
+        <div class="feature-item"><span class="feature-icon">✅</span> Chat pubblica Discord</div>
+        <div class="feature-item"><span class="feature-icon">✅</span> Regole e documentazione</div>
+        <div class="feature-item" style="opacity:0.35;"><span class="feature-icon">🔒</span> Canali esclusivi premium</div>
+        <div class="feature-item" style="opacity:0.35;"><span class="feature-icon">🔒</span> Contenuti avanzati</div>
+      </div>
+      <button class="btn-logout" onclick="logout()">← Disconnetti</button>
+    </div>
+
+    <!-- PREMIUM -->
+    <div id="section-premium">
+      <div class="user-header">
+        <div class="avatar-placeholder" id="avatar-premium">?</div>
+        <div class="user-info">
+          <p class="user-name" id="name-premium">—</p>
+          <p class="user-id"  id="id-premium">—</p>
+        </div>
+        <span class="badge badge-premium">⭐ Premium</span>
+      </div>
+      <p class="section-label">Funzionalità sbloccate</p>
+      <div class="features">
+        <div class="feature-item"><span class="feature-icon">✅</span> Accesso al server di gioco</div>
+        <div class="feature-item"><span class="feature-icon">✅</span> Chat pubblica Discord</div>
+        <div class="feature-item"><span class="feature-icon">✅</span> Regole e documentazione</div>
+        <div class="feature-item" style="border-color:rgba(245,196,0,0.3)"><span class="feature-icon">⭐</span> Canali esclusivi premium</div>
+        <div class="feature-item" style="border-color:rgba(245,196,0,0.3)"><span class="feature-icon">⭐</span> Contenuti avanzati</div>
+      </div>
+      <button class="btn-logout" onclick="logout()">← Disconnetti</button>
+    </div>
+
+    <!-- ERROR -->
+    <div id="section-error">
+      <p id="error-msg">Si è verificato un errore.</p>
+      <button class="btn-retry" onclick="showSection('login')">Riprova</button>
+    </div>
+
+  </div>
+
+  <p class="footer">Italy RolePlay &nbsp;·&nbsp; ph4sm0</p>
+</div>
+
+<script>
+  const BACKEND = "http://127.0.0.1:8000";
+
+  function showSection(name) {
+    ["login","loading","free","premium","error"].forEach(s => {
+      document.getElementById("section-" + s).style.display = "none";
+    });
+    document.getElementById("section-" + name).style.display = "block";
+  }
+
+  function setUserUI(user) {
+    const initial = (user.username || "?")[0].toUpperCase();
+    const avatarUrl = user.avatar
+      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+      : null;
+
+    const section = user.premium ? "premium" : "free";
+
+    const avatarEl = document.getElementById("avatar-" + section);
+    if (avatarUrl) {
+      const img = document.createElement("img");
+      img.src = avatarUrl;
+      img.className = "avatar";
+      img.alt = user.username;
+      avatarEl.replaceWith(img);
+    } else {
+      avatarEl.textContent = initial;
+    }
+
+    document.getElementById("name-" + section).textContent = user.username;
+    document.getElementById("id-" + section).textContent   = "ID: " + user.id;
+
+    showSection(section);
+  }
+
+  function showError(msg) {
+    document.getElementById("error-msg").textContent = msg;
+    showSection("error");
+  }
+
+  function logout() {
+    localStorage.removeItem("discord_token");
+    showSection("login");
+  }
+
+  async function checkToken(token) {
+    showSection("loading");
+    try {
+      const res = await fetch(BACKEND + "/me", {
+        headers: { "Authorization": "Bearer " + token }
+      });
+      if (res.status === 401) {
+        localStorage.removeItem("discord_token");
+        showSection("login");
+        return;
+      }
+      if (!res.ok) throw new Error("Errore server: " + res.status);
+      const user = await res.json();
+      setUserUI(user);
+    } catch (e) {
+      showError("Impossibile contattare il server. Riprova.");
+    }
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────
+  (function init() {
+    // Se c'è un ?token= nell'URL (dopo callback Discord)
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get("token");
+    if (urlToken) {
+      localStorage.setItem("discord_token", urlToken);
+      // Pulisci l'URL
+      window.history.replaceState({}, "", "/");
+      checkToken(urlToken);
+      return;
+    }
+
+    // Altrimenti controlla token salvato
+    const saved = localStorage.getItem("discord_token");
+    if (saved) {
+      checkToken(saved);
+    } else {
+      showSection("login");
+    }
+  })();
+</script>
+</body>
+</html>
