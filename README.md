@@ -2,9 +2,6 @@
 
 Bot con sito integrato per un login più facile nel vostro server!
 
-# COME CONFIGURO IL BOT?
+# CHANGELOGS
 
-crei un file 
-.env
-Esattamente come ho scritto e inserisci tutte le variabili richieste nei vari file.
-
+Tolto il file .env per problemi nel riconoscere TOKEN e GUILDID
