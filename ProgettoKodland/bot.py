@@ -7,15 +7,16 @@ import os
 # ─────────────────────────────────────────────
 #  CONFIGURAZIONE — sostituisci con i tuoi dati
 # ─────────────────────────────────────────────
-BOT_TOKEN      = "MTUwMjYwMDQzMTk4ODM3OTY3OQ.Gd98KH.68M-ZFR-m2_TuWw05HcStoDpg4pODITekZ_gv4"
-GUILD_ID       = int("1431571702747238463")
-ROLE_MEMBRO_ID = int("1431572480082055168")
-ROLE_STAFF_ID  = int("1437155324032188416")
-ROLE_ADMIN_ID  = int("1437155324032188416")
-WELCOME_CH_ID  = int("1502617438255054912")
-LOG_CH_ID      = int("1502617446820085770")
-RULES_CH_ID    = int("1502617434883096646")
-TICKET_CH_ID   = int("1504202763154886730")
+BOT_TOKEN      = "INSERISCI"
+GUILD_ID       = int("INSERISCI")
+ROLE_MEMBRO_ID = int("INSERISCI")
+ROLE_STAFF_ID  = int("INSERISCI")
+ROLE_ADMIN_ID  = int("INSERISCI")
+ROLE_PREMIUM_ID = int("INSERISCI")  
+WELCOME_CH_ID  = int("INSERISCI")
+LOG_CH_ID      = int("INSERISCI")
+RULES_CH_ID    = int("INSERISCI")
+TICKET_CH_ID   = int("INSERISCI")
 # ─────────────────────────────────────────────
 
 WARNS_FILE = "warns.json"
@@ -79,6 +80,12 @@ def is_admin(interaction: discord.Interaction) -> bool:
 
 @bot.event
 async def on_ready():
+    try:
+        synced = await bot.tree.sync(guild=discord.Object(id=GUILD_ID))
+        print(f"🔄 Comandi sincronizzati: {len(synced)}")
+    except Exception as e:
+        print(f"Errore sync: {e}")
+
     print(f"✅ Bot online come {bot.user}")
 
 @bot.event
@@ -462,6 +469,58 @@ async def cmd_annuncio(interaction: discord.Interaction, canale: discord.TextCha
     embed.set_footer(text=f"Italy RP — {interaction.user.display_name}")
     await canale.send("@everyone", embed=embed)
     await interaction.response.send_message(f"✅ Annuncio inviato in {canale.mention}.", ephemeral=True)
+
+
+# ════════════════════════════════════════════════
+#  PREMIUM
+# ════════════════════════════════════════════════
+
+@bot.tree.command(name="premium", description="[STAFF] Assegna il premium a un utente", guild=GUILD)
+@app_commands.describe(membro="Il membro a cui dare il premium")
+async def cmd_premium(interaction: discord.Interaction, membro: discord.Member):
+    if not is_staff(interaction):
+        await interaction.response.send_message("❌ Non hai i permessi.", ephemeral=True)
+        return
+
+    ruolo = interaction.guild.get_role(ROLE_PREMIUM_ID)
+    if not ruolo:
+        await interaction.response.send_message("❌ Ruolo premium non trovato.", ephemeral=True)
+        return
+
+    await membro.add_roles(ruolo)
+    await interaction.response.send_message(f"🌟 Premium assegnato a {membro.mention}!", ephemeral=True)
+
+    log = discord.Embed(
+        title="🌟 Premium Assegnato",
+        description=f"{membro.mention} ha ricevuto il ruolo premium.",
+        color=0xf1c40f,
+        timestamp=datetime.datetime.utcnow()
+    )
+    await send_log(interaction.guild, log)
+
+
+@bot.tree.command(name="leva_premium", description="[STAFF] Rimuove il premium da un utente", guild=GUILD)
+@app_commands.describe(membro="Il membro a cui togliere il premium")
+async def cmd_leva_premium(interaction: discord.Interaction, membro: discord.Member):
+    if not is_staff(interaction):
+        await interaction.response.send_message("❌ Non hai i permessi.", ephemeral=True)
+        return
+
+    ruolo = interaction.guild.get_role(ROLE_PREMIUM_ID)
+    if not ruolo:
+        await interaction.response.send_message("❌ Ruolo premium non trovato.", ephemeral=True)
+        return
+
+    await membro.remove_roles(ruolo)
+    await interaction.response.send_message(f"🗑️ Premium rimosso da {membro.mention}.", ephemeral=True)
+
+    log = discord.Embed(
+        title="🗑️ Premium Rimosso",
+        description=f"{membro.mention} non è più premium.",
+        color=0xe74c3c,
+        timestamp=datetime.datetime.utcnow()
+    )
+    await send_log(interaction.guild, log)
 
 
 # ════════════════════════════════════════════════
