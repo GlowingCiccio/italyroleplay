@@ -56,11 +56,10 @@
 - ✅ **Login con Discord OAuth2**
 - ✅ **Profilo utente in tempo reale**
 - ✅ **Statistiche server live** (membri totali, online)
-- ✅ **Design moderno con glassmorphism**
-- ✅ **Responsive** (funziona su mobile/tablet/desktop)
-- ✅ **Funzioni premium dinamiche** (appaiono/scompaiono in tempo reale)
-- ✅ **API REST completa**
-- ✅ **Check premium automatico ogni 15 secondi**
+- ✅ **Design moderno**
+- ✅ **Adattivo** (funziona su mobile/tablet/desktop)
+- ✅ **Funzioni premium dinamiche** (appaiono/scompaiono in base al tuo ruolo su discord)
+- ✅ **Check premium automatico ogni 15/20 secondi**
 
 ---
 
