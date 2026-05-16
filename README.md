@@ -15,7 +15,7 @@
     <strong>✨ Portale avanzato per la gestione del tuo server Discord FiveM ✨</strong>
   </p>
   
-  ![Preview]([https://via.placeholder.com/800x400/1a1a2e/5c6ef5?text=Italy+RP+Portal+Preview](https://imgur.com/a/ZAqNpwp))
+  ![Preview](https://imgur.com/a/ZAqNpwp)
   
 </div>
 
