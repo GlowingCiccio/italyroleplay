@@ -1,6 +1,6 @@
 <div align="center">
   
-  <img src="https://cdn.discordapp.com/icons/1431571702747238463/your_server_icon.png" width="150" style="border-radius: 50%;">
+  <img src="https://imgur.com/a/ZAqNpwp" width="150" style="border-radius: 50%;">
   
   # 🇮🇹 Italy RP Portal
   
@@ -15,7 +15,7 @@
     <strong>✨ Portale avanzato per la gestione del tuo server Discord FiveM ✨</strong>
   </p>
   
-  ![Preview](https://via.placeholder.com/800x400/1a1a2e/5c6ef5?text=Italy+RP+Portal+Preview)
+  ![Preview]([https://via.placeholder.com/800x400/1a1a2e/5c6ef5?text=Italy+RP+Portal+Preview](https://imgur.com/a/ZAqNpwp))
   
 </div>
 
